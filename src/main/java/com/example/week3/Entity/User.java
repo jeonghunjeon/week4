@@ -29,19 +29,9 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    public User(String userName, String passWord, UserRoleEnum role) {
-        this.userName = userName;
-        this.passWord = passWord;
-        this.role = role;
-    }
-
     public User (UserRequestDto requestDto, UserRoleEnum role) {
         this.userName = requestDto.getUserName();
         this.passWord = requestDto.getPassWord();
         this.role = role;
-    }
-
-    public void setBlogs(Blog blog) {
-        this.blogs.add(blog);
     }
 }
