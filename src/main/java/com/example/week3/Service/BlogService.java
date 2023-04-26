@@ -55,7 +55,7 @@ public class BlogService {
         Blog blog = checkBlog(id);
         User user = jwtUtils.checkToken(servletRequest);
         if (blog.getUserName().equals(user.getUserName()) || user.getRole().equals(UserRoleEnum.ADMIN)) {
-            blogRepository.delete(blog);
+            blogRepository.deleteById(blog.getBlogId());
             return new StatusResponseDto(200, "삭제에 성공하였습니다.");
         } else {
             throw new CustomException(ErrorCode.INVALID_USER);
