@@ -4,8 +4,10 @@ import com.example.week3.Dto.BlogRequestDto;
 import com.example.week3.Dto.BlogResponseDto;
 import com.example.week3.Dto.StatusResponseDto;
 import com.example.week3.Repository.BlogRepository;
+import com.example.week3.Security.UserDetailsImpl;
 import com.example.week3.Service.BlogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,8 +21,8 @@ public class BlogController {
     private final BlogService blogService;
 
     @PostMapping("/create")
-    public BlogResponseDto createBlog(@RequestBody BlogRequestDto blogRequestDto, HttpServletRequest servletRequest) {
-        return blogService.createBlog(blogRequestDto, servletRequest);
+    public BlogResponseDto createBlog(@RequestBody BlogRequestDto blogRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return blogService.createBlog(blogRequestDto, userDetails.getUser());
     }
 
     @GetMapping("/list")
@@ -34,12 +36,12 @@ public class BlogController {
     }
 
     @PutMapping("/update/{id}")
-    public BlogResponseDto updateBlog(@PathVariable Long id, @RequestBody BlogRequestDto blogRequestDto, HttpServletRequest servletRequest) {
-        return blogService.updateBlog(id, blogRequestDto, servletRequest);
+    public BlogResponseDto updateBlog(@PathVariable Long id, @RequestBody BlogRequestDto blogRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return blogService.updateBlog(id, blogRequestDto, userDetails.getUser());
     }
 
     @DeleteMapping("/delete/{id}")
-    public StatusResponseDto deleteBlog(@PathVariable Long id, HttpServletRequest servletRequest) {
-        return blogService.deleteBlog(id, servletRequest);
+    public StatusResponseDto deleteBlog(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return blogService.deleteBlog(id, userDetails.getUser());
     }
 }

@@ -22,7 +22,7 @@ public class Blog extends TimeStamped{
     @ManyToOne
     @JoinColumn(name = "ID")
     private User user;
-    @OneToMany(mappedBy = "blog", cascade = CascadeType.REMOVE) // Blog 삭제시 연관된 Comment까지 삭제
+    @OneToMany(mappedBy = "blog") // Blog 삭제시 연관된 Comment까지 삭제
     private List<Comment> comments = new ArrayList<>();
     private String title;
     private String userName;

@@ -10,6 +10,7 @@ import com.example.week3.Exception.CustomException;
 import com.example.week3.Exception.ErrorCode;
 import com.example.week3.Jwt.JwtUtils;
 import com.example.week3.Repository.BlogRepository;
+import com.example.week3.Repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +23,9 @@ import java.util.List;
 public class BlogService {
 
     private final BlogRepository blogRepository;
+    private final CommentRepository commentRepository;
     private final JwtUtils jwtUtils;
-    public BlogResponseDto createBlog(BlogRequestDto blogRequestDto, HttpServletRequest servletRequest) {
-        User user = jwtUtils.checkToken(servletRequest);
+    public BlogResponseDto createBlog(BlogRequestDto blogRequestDto, User user) {
         Blog blog = new Blog(blogRequestDto, user);
         return new BlogResponseDto(blogRepository.save(blog));
     }
@@ -40,9 +41,8 @@ public class BlogService {
     }
 
     @Transactional
-    public BlogResponseDto updateBlog(Long id, BlogRequestDto blogRequestDto, HttpServletRequest servletRequest) {
+    public BlogResponseDto updateBlog(Long id, BlogRequestDto blogRequestDto, User user) {
         Blog blog = checkBlog(id);
-        User user = jwtUtils.checkToken(servletRequest);
         if (blog.getUserName().equals(user.getUserName()) || user.getRole().equals(UserRoleEnum.ADMIN)) {
             blog.update(blogRequestDto);
         } else {
@@ -51,10 +51,11 @@ public class BlogService {
         return new BlogResponseDto(blog);
     }
 
-    public StatusResponseDto deleteBlog(Long id, HttpServletRequest servletRequest) {
+    @Transactional
+    public StatusResponseDto deleteBlog(Long id, User user) {
         Blog blog = checkBlog(id);
-        User user = jwtUtils.checkToken(servletRequest);
         if (blog.getUserName().equals(user.getUserName()) || user.getRole().equals(UserRoleEnum.ADMIN)) {
+            commentRepository.deleteByBlog(blog);
             blogRepository.deleteById(blog.getBlogId());
             return new StatusResponseDto(200, "삭제에 성공하였습니다.");
         } else {

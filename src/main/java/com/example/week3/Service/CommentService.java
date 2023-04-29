@@ -12,7 +12,9 @@ import com.example.week3.Exception.ErrorCode;
 import com.example.week3.Jwt.JwtUtils;
 import com.example.week3.Repository.BlogRepository;
 import com.example.week3.Repository.CommentRepository;
+import com.example.week3.Security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,20 +28,22 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final JwtUtils jwtUtils;
 
-    public CommentResponseDto createComment(Long blogId, CommentRequestDto commentRequestDto, HttpServletRequest servletRequest) {
+    @Transactional
+    public CommentResponseDto createComment(Long blogId, CommentRequestDto commentRequestDto, User user) {
 
-        User user = jwtUtils.checkToken(servletRequest);
         Blog blog = blogRepository.findById(blogId).orElseThrow(
                 () -> new CustomException(ErrorCode.BLOG_NOT_FOUND)
         );
         Comment comment = new Comment(blog, commentRequestDto, user);
+        blog.getComments().add(comment);
         commentRepository.save(comment);
         return new CommentResponseDto(comment);
     }
 
     @Transactional
-    public CommentResponseDto updateComment(Long blogId, Long id, CommentRequestDto commentRequestDto, HttpServletRequest servletRequest) {
-        User user = jwtUtils.checkToken(servletRequest);
+    public CommentResponseDto updateComment(Long blogId, Long id, CommentRequestDto commentRequestDto,
+                                            User user) {
+
         Blog blog = blogRepository.findById(blogId).orElseThrow(
                 () -> new CustomException(ErrorCode.BLOG_NOT_FOUND)
         );
@@ -54,8 +58,8 @@ public class CommentService {
         return new CommentResponseDto(comment);
     }
 
-    public StatusResponseDto deleteComment(Long blogId, Long id, HttpServletRequest servletRequest) {
-        User user = jwtUtils.checkToken(servletRequest);
+    public StatusResponseDto deleteComment(Long blogId, Long id, User user) {
+
         Blog blog = blogRepository.findById(blogId).orElseThrow(
                 () -> new CustomException(ErrorCode.BLOG_NOT_FOUND)
         );
